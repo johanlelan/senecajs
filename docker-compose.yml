@@ -1,0 +1,77 @@
+version: '3'
+services:
+# MICROSERVICES
+  items:
+    build: ./items
+    extra_hosts:
+      - "moby:127.0.0.1"
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: '3001'
+      KAFKA_URL: '172.16.9.11:9092'
+      ZK_URL: '172.16.9.11:2181'
+    depends_on:
+      - kafka
+    restart: on-failure
+  search:
+    build: ./search
+    extra_hosts:
+      - "moby:127.0.0.1"
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: '3002'
+      KAFKA_URL: '172.16.9.11:9092'
+      ZK_URL: '172.16.9.11:2181'
+    depends_on:
+      - kafka
+    restart: on-failure
+  event-processor-index-items:
+    build: ./event-processor-index-items
+    extra_hosts:
+      - "moby:127.0.0.1"
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: '3003'
+      KAFKA_URL: '172.16.9.11:9092'
+      ZK_URL: '172.16.9.11:2181'
+      QUERY_HOST: 'search'
+      QUERY_PORT: '3002'
+    depends_on:
+      - kafka
+      - items
+      - search
+    restart: on-failure
+  gateway:
+    build: ./gateway
+    environment:
+      PORT: '3000'
+      KAFKA_URL: '172.16.9.11:9092'
+      ZK_URL: '172.16.9.11:2181'
+      COMMAND_HOST: 'items'
+      COMMAND_PORT: '3001'
+      QUERY_HOST: 'search'
+      QUERY_PORT: '3002'
+    ports:
+      - "3000:3000"
+    depends_on:
+      - items
+      - search
+      - kafka
+      - event-processor-index-items
+    restart: on-failure
+#KAFKA
+  kafka:
+    image: spotify/kafka
+    hostname: kafka
+    extra_hosts:
+      - "moby:127.0.0.1"
+    environment:
+      ADVERTISED_HOST: 172.16.9.11
+      TOPICS: items,search
+      ADVERTISED_PORT: 9092
+    ports:
+      - "9092:9092"
+      - "2181:2181"

@@ -1,0 +1,24 @@
+{
+  "name": "event-processor-index-items",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "NODE_ENV=test mocha --reporter spec --bail *.spec.js --exit"
+  },
+  "author": "jll",
+  "license": "ISC",
+  "dependencies": {
+    "kafka-node": "^3.0.1",
+    "kafka-streams": "^4.7.0",
+    "lodash.get": "^4.4.2",
+    "pino": "^5.8.0",
+    "seneca": "^3.7.0",
+    "seneca-amqp-transport": "^2.2.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "should": "^13.2.3"
+  }
+}
